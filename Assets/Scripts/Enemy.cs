@@ -34,7 +34,7 @@ public class Enemy : MovingObject
 	
 	//Override the AttemptMove function of MovingObject to include functionality needed for Enemy to skip turns.
 	//See comments in MovingObject for more on how base AttemptMove function works.
-	protected override void AttemptMove <T> (int xDir, int yDir)
+	protected override void AttemptMove <T> (Vector2 inDir)
 	{
 		//Check if skipMove is true, if so set it to false and skip this turn.
 		if(skipMove)
@@ -45,7 +45,7 @@ public class Enemy : MovingObject
 		}
 		
 		//Call the AttemptMove function from MovingObject.
-		base.AttemptMove <T> (xDir, yDir);
+		base.AttemptMove <T> (inDir);
 		
 		//Now that Enemy has moved, set skipMove to true to skip next move.
 		skipMove = true;
@@ -72,7 +72,7 @@ public class Enemy : MovingObject
 			xDir = target.position.x > transform.position.x ? 1 : -1;
 		
 		//Call the AttemptMove function and pass in the generic parameter Player, because Enemy is moving and expecting to potentially encounter a Player
-		AttemptMove <Player> (xDir, yDir);
+		AttemptMove <Player> (new Vector2(xDir, yDir));
 	}
 	
 	
