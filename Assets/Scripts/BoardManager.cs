@@ -72,8 +72,8 @@ public class BoardManager : MonoBehaviour
 				GameObject toInstantiate = floorTiles[Random.Range (0,floorTiles.Length)];
 				
 				//Check if we current position is at board edge, if so choose a random outer wall prefab from our array of outer wall tiles.
-				if(x == -1 || x == columns || y == -1 || y == rows)
-					toInstantiate = outerWallTiles [Random.Range (0, outerWallTiles.Length)];
+//				if(x == -1 || x == columns || y == -1 || y == rows)
+//					toInstantiate = outerWallTiles [Random.Range (0, outerWallTiles.Length)];
 				
 				//Instantiate the GameObject instance using the prefab chosen for toInstantiate at the Vector3 corresponding to current grid position in loop, cast it to GameObject.
 				GameObject instance =
@@ -146,6 +146,6 @@ public class BoardManager : MonoBehaviour
 		//LayoutObjectAtRandom (enemyTiles, enemyCount, enemyCount);
 		
 		//Instantiate the exit tile in the upper right hand corner of our game board
-		Instantiate (exit, new Vector3 (columns - 1, rows - 1, 0f), Quaternion.identity);
+		//Instantiate (exit, new Vector3 (columns - 1, rows - 1, 0f), Quaternion.identity);
 	}
 }
