@@ -18,6 +18,13 @@ using UnityEngine.SceneManagement;
 		public AudioClip drinkSound1;				//1 of 2 Audio clips to play when player collects a soda object.
 		public AudioClip drinkSound2;				//2 of 2 Audio clips to play when player collects a soda object.
 		public AudioClip gameOverSound;				//Audio clip to play when player dies.
+		public bool isDead;
+		public GameObject background;
+		public Vector2 playerPosition;
+
+		public float scalex;
+		public float scaley;
+
 
         public int playerIndex = 0;
 		
@@ -33,6 +40,13 @@ using UnityEngine.SceneManagement;
 		{
 			//Get a component reference to the Player's animator component
 			animator = GetComponent<Animator>();
+
+			background = GameObject.Find("background");
+			
+			isDead = false;
+
+			playerPosition = this.transform.position;
+			Debug.Log (playerPosition);
 			
 			//Get the current food point total stored in GameManager.instance between levels.
 			food = GameManager.instance.playerFoodPoints;
@@ -117,6 +131,10 @@ using UnityEngine.SceneManagement;
 			
 			//Since the player has moved and lost food points, check if the game has ended.
 			CheckIfGameOver ();
+
+			//Debug.Log ("not dead");
+			CheckIfDead ();
+	
 			
 			//Set the playersTurn boolean of GameManager to false now that players turn is over.
 			GameManager.instance.playersTurn = false;
@@ -228,4 +246,44 @@ using UnityEngine.SceneManagement;
 				GameManager.instance.GameOver ();
 			}
 		}
+
+	private void CheckIfDead ()
+	{
+		bool x = background.GetComponent<BoxCollider2D> ().bounds.Contains(this.transform.position);
+		//Debug.Log (x);
+		//Debug.Log("player position:"+ this.transform.position.x+this.transform.position.y);
+		//Debug.Log("box position:"+ this.GetComponent<BoxCollider2D>().bounds.extents.x + this.GetComponent<BoxCollider2D>().bounds.extents.y);
+
+		if (x == false) {
+			
+			this.gameObject.SetActive (false);
+
+//			playerShrink ();
+
+			//Debug.Log ("destroied");
+			isDead = true;
+			//Debug.Log ("yo" + isDead);
+			//yield return new WaitForSeconds(1f);
+
+			Debug.Log ("wait");
+
+			this.transform.position = playerPosition;
+//			this.transform.localScale = new Vector2 (1f, 1f);
+			this.gameObject.SetActive (true);
+			//Destroy(this.gameObject);
+			isDead = false;
+		}
 	}
+
+//	void playerShrink(){
+//		
+//		if (this.transform.localScale.x > 0.1f) {
+//			scalex = this.transform.localScale.x;
+//			scaley = this.transform.localScale.y;
+//			this.transform.localScale = new Vector2 (0.99f * scalex, 0.999f * scaley);
+//			Debug.Log (this.transform.localScale.x);
+//			Debug.Log (scalex);
+//			playerShrink ();
+//		}
+//    }	
+}
