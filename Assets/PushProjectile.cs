@@ -48,8 +48,8 @@ public class PushProjectile : MonoBehaviour
             Player otherPlayer = other.gameObject.GetComponent<Player>();
             if(otherPlayer != null && otherPlayer != _owner)
             {
-                Vector2 diffDir = (other.transform.position - transform.position).normalized;
-                otherPlayer.Push(diffDir);
+                Vector2 diff = (other.transform.position - transform.position);
+                otherPlayer.Push(diff * 13f);
                 didHit = true;
             }
         }

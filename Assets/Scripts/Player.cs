@@ -104,8 +104,6 @@ using UnityEngine.SceneManagement;
 			AttemptMove<Wall> (inMoveDir);        
             AimTowards(inAimDir);
 
-            Debug.Log(GetComponent<Rigidbody2D>().velocity.magnitude);
-
             // firing
             if(primaryFireDown)
             {
@@ -350,23 +348,6 @@ using UnityEngine.SceneManagement;
 			}
 		}
         
-        #region Force
-
-        /// <summary>
-        /// When we are pushed, change the type of rigidbody to 
-        /// </summary>
-        /// <param name="pushDir">Push dir.</param>
-        public void Push(Vector2 pushDir)
-        {
-            Debug.Log(pushDir + "!");
-            Rigidbody2D rb2d = GetComponent<Rigidbody2D>();
-            rb2d.bodyType = RigidbodyType2D.Dynamic;
-
-            rb2d.AddForce(pushDir * 100f, ForceMode2D.Impulse);
-        }
-
-        #endregion
-
 	private void CheckIfDead ()
 	{
 		bool x = background.GetComponent<BoxCollider2D> ().bounds.Contains(this.transform.position);
