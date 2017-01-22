@@ -39,9 +39,36 @@ using UnityEngine.SceneManagement;
 
         public AudioClip pickUpSound;               //Pick up Egg sound
         public AudioClip dropSound;                 //Egg is dropped sound
-       
-        public GameObject leftBase;
-        public GameObject rightBase;
+
+        private GameObject _leftBase;
+        public GameObject leftBase
+        {
+            get
+            {
+                if(_leftBase == null)
+                {
+                    _leftBase = GameObject.Find("LeftBase");
+                }
+
+                return _leftBase;
+            }
+        }
+
+        private GameObject _rightBase;
+        public GameObject rightBase
+        {
+        get
+            {
+                if(_rightBase == null)
+                {
+                    _rightBase = GameObject.Find("RightBase");
+                }
+
+                return _rightBase;
+            }
+        }
+
+
         public bool isHoldingEgg = false;
         public bool isLeftTeam;
 
@@ -326,7 +353,9 @@ using UnityEngine.SceneManagement;
         
 	public bool CheckIfDead ()
 	{
-		bool isContainedInBackground = background.GetComponent<BoxCollider2D> ().bounds.Contains(this.transform.position);
+        var backgroundCollider = background.GetComponent<BoxCollider2D>();
+        var checkPosition = new Vector3(transform.position.x, transform.position.y, backgroundCollider.transform.position.z);
+		bool isContainedInBackground = backgroundCollider.bounds.Contains(checkPosition);
 
         if (!isContainedInBackground)
         {
