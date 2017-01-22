@@ -35,17 +35,18 @@ public struct GameScore
 
 public class GameManager : MonoBehaviour
 {
-    public const int WINNING_SCORE = 5;
+    public const int WINNING_SCORE = 3;
     public float levelStartDelay = 2f;						//Time to wait before starting level, in seconds.
 	public float turnDelay = 0.1f;							//Delay between each Player turn.
 	public int playerFoodPoints = 100;						//Starting value for Player food points.
 	public static GameManager instance = null;				//Static instance of GameManager which allows it to be accessed by any other script.
 	[HideInInspector] public bool playersTurn = true;       //Boolean to check if it's players turn, hidden in inspector but public.
 
-    public Text scoreText;
-	private Text levelText;									//Text to display current level number.
-	private GameObject levelImage;							//Image to block out level as levels are being set up, background for levelText.
-	private BoardManager boardScript;						//Store a reference to our BoardManager which will set up the level.
+    private Text scoreText;
+	private Text levelText;                                 //Text to display current level number.
+    private GameObject levelImage;                          //Image to block out level as levels are being set up, background for levelText.
+    private GameObject scoreImage;
+    private BoardManager boardScript;						//Store a reference to our BoardManager which will set up the level.
 	private int level = 1;									//Current level number, expressed in game as "Day 1".
 	private List<Enemy> enemies;							//List of all Enemy units, used to issue them move commands.
 	private bool enemiesMoving;								//Boolean to check if enemies are moving.
@@ -74,7 +75,9 @@ public class GameManager : MonoBehaviour
 		
 		//Assign enemies to a new List of Enemy objects.
 		enemies = new List<Enemy>();
-		
+        leftTeam.Clear();
+        rightTeam.Clear();
+
 		//Get a component reference to the attached BoardManager script
 		boardScript = GetComponent<BoardManager>();
 
@@ -135,25 +138,28 @@ public class GameManager : MonoBehaviour
 	{
 		//While doingSetup is true the player can't move, prevent player from moving while title card is up.
 		doingSetup = true;
-		
-		//Get a reference to our image LevelImage by finding it by name.
-		levelImage = GameObject.Find("LevelImage");
+
+        //Get a reference to our image LevelImage by finding it by name.
+        levelImage = GameObject.Find("LevelImage");
+        scoreImage = GameObject.Find("ScoreImage");
 
         //Get a reference to our text LevelText's text component by finding it by name and calling GetComponent.
         levelText = GameObject.Find("LevelText").GetComponent<Text>();
-        scoreText = GameObject.Find("LevelText").GetComponent<Text>();
+        scoreText = GameObject.Find("ScoreText").GetComponent<Text>();
 
         //Set the text of levelText to the string "Day" and append the current level number.
         levelText.text = "Round " + level;
-		
-		//Set levelImage to active blocking player's view of the game board during setup.
-		levelImage.SetActive(true);
-		
-		//Call the HideLevelImage function with a delay in seconds of levelStartDelay.
-		Invoke("HideLevelImage", levelStartDelay);
-		
-		//Clear any Enemy objects in our List to prepare for next level.
-		enemies.Clear();
+        scoreText.text = "SCORES";
+
+        //Set levelImage to active blocking player's view of the game board during setup.
+        levelImage.SetActive(true);
+  
+        //Call the HideLevelImage function with a delay in seconds of levelStartDelay.
+        Invoke("HideLevelImage", levelStartDelay);
+        scoreImage.SetActive(true);
+
+        //Clear any Enemy objects in our List to prepare for next level.
+        enemies.Clear();
 		
 		//Call the SetupScene function of the BoardManager script, pass it current level number.
 		boardScript.SetupScene(level);
@@ -163,7 +169,6 @@ public class GameManager : MonoBehaviour
 
         //Reset scores
         score.reset();
-        scoreText.text = score.getTeam1() + " : " + score.getTeam2();
     }
 
 
@@ -181,14 +186,25 @@ public class GameManager : MonoBehaviour
     {
         if (score.getTeam1() == WINNING_SCORE)
         {
-            //Team 1 Wins
-            Debug.Log("Team1!");
+            //Set levelText to display number of levels passed and game over message
+            levelText.text = "Team 1 Wins!";
 
+            //Enable black background image gameObject.
+            levelImage.SetActive(true);
+
+            Invoke("HideLevelImage", levelStartDelay);
+            Awake();
         }
         else if (score.getTeam2() == WINNING_SCORE)
         {
-            //Team 2 Wins
-            Debug.Log("Team2!");
+            //Set levelText to display number of levels passed and game over message
+            levelText.text = "Team 2 Wins!";
+
+            //Enable black background image gameObject.
+            levelImage.SetActive(true);
+
+            Invoke("HideLevelImage", levelStartDelay);
+            Awake();
         }
     }
 	//Update is called every frame.
@@ -259,6 +275,7 @@ public class GameManager : MonoBehaviour
         */
         //if captured, check if winning team won. 2 out of 3
         scoreText.text = score.getTeam1() + " : " + score.getTeam2();
+        scoreImage.SetActive(false);
 
         checkWinningConditions();
 
@@ -284,7 +301,7 @@ public class GameManager : MonoBehaviour
 	public void GameOver()
 	{
 		//Set levelText to display number of levels passed and game over message
-		levelText.text = "Score: " + score.getTeam1() + ":" + score.getTeam2() + " days, you starved.";
+		levelText.text = "";
 		
 		//Enable black background image gameObject.
 		levelImage.SetActive(true);
