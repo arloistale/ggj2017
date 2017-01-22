@@ -11,13 +11,20 @@ using UnityEngine.SceneManagement;
 		public int pointsPerSoda = 20;				//Number of points to add to player food points when picking up a soda object.
 		public int wallDamage = 1;					//How much damage a player does to a wall when chopping it.
 		public Text foodText;						//UI Text to display current player food total.
-		public AudioClip moveSound1;				//1 of 2 Audio clips to play when player moves.
-		public AudioClip moveSound2;				//2 of 2 Audio clips to play when player moves.
-		public AudioClip eatSound1;					//1 of 2 Audio clips to play when player collects a food object.
-		public AudioClip eatSound2;					//2 of 2 Audio clips to play when player collects a food object.
-		public AudioClip drinkSound1;				//1 of 2 Audio clips to play when player collects a soda object.
-		public AudioClip drinkSound2;				//2 of 2 Audio clips to play when player collects a soda object.
-		public AudioClip gameOverSound;				//Audio clip to play when player dies.
+
+        // primary projectile
+        public GameObject primaryFireProjectilePrefab;
+        public float primaryFireCooldownTime = 2f;
+        private float _lastPrimaryFireTime;
+
+        public bool HasBeenHitRecentlyByPrimaryProjectile { get; private set; }
+
+        // aiming
+        private Vector2 _aimDirection;
+
+        public Line playerAimingLine;
+        public float playerAimingLineDistance;
+        public float playerAimingLineThickness;
 
         public int playerIndex = 0;
 		
@@ -39,6 +46,8 @@ using UnityEngine.SceneManagement;
 			
 			//Set the foodText to reflect the current player food total.
 			foodText.text = "Food: " + food;
+
+            _aimDirection = transform.forward;
 			
 			//Call the Start function of the MovingObject base class.
 			base.Start ();
@@ -57,15 +66,80 @@ using UnityEngine.SceneManagement;
 		{
 			//Check if we are running either in the Unity editor or in a standalone build.
 
-            Vector2 inDir = GetInDirectionFromInputBasedOnPlayerIndex(playerIndex);
+            Vector2 inMoveDir = GetInDirectionFromInputBasedOnPlayerIndex().normalized;
+            Vector2 inAimDir = GetInAimDirectionFromInputBasedOnPlayerIndex().normalized;
+
+            bool primaryFireDown = GetPrimaryFireDownFromInputBasedOnPlayerIndex();
                      
-			//Check if we have a non-zero value for horizontal or vertical
-			//Call AttemptMove passing in the generic parameter Wall, since that is what Player may interact with if they encounter one (by attacking it)
-			//Pass in horizontal and vertical as parameters to specify the direction to move Player in.
-			AttemptMove<Wall> (inDir);
+			// movement and aiming
+			AttemptMove<Wall> (inMoveDir);        
+            AimTowards(inAimDir);
+
+            Debug.Log(GetComponent<Rigidbody2D>().velocity.magnitude);
+
+            // firing
+            if(primaryFireDown)
+            {
+                FirePrimaryInAimDirection();
+            }
 		}
 
-        private Vector2 GetInDirectionFromInputBasedOnPlayerIndex(int playerIndex)
+        private void FirePrimaryInAimDirection()
+        {
+            if(_aimDirection.sqrMagnitude < float.Epsilon)
+                return;
+
+            if(Time.time - _lastPrimaryFireTime < primaryFireCooldownTime)
+                return;
+
+            _lastPrimaryFireTime = Time.time;
+
+            var projObj = ( GameObject ) Instantiate(this.primaryFireProjectilePrefab, new Vector3(transform.position.x, transform.position.y, -1), Quaternion.LookRotation(_aimDirection));
+            var proj = projObj.GetComponent<PushProjectile>();
+            proj.SetOwner(this);
+            proj.Launch(_aimDirection);
+        }
+
+        private void AimTowards(Vector2 inDir)
+        {
+            if(inDir.sqrMagnitude > float.Epsilon)
+            {
+                playerAimingLine.Activate(transform.position, transform.position + (Vector3)(inDir * playerAimingLineDistance), playerAimingLineThickness);
+                _aimDirection = inDir;
+            }
+            else
+            {
+                playerAimingLine.Deactivate();
+            }
+        }
+
+        private bool GetPrimaryFireDownFromInputBasedOnPlayerIndex()
+        {
+            bool isDown = false;
+
+            switch(playerIndex)
+            {
+                case 0:
+                    isDown = Input.GetButtonDown("Fire1");
+                    break;
+                case 1:
+                    //h = Input.GetAxisRaw("Horizontal1");
+                    //v = Input.GetAxisRaw("Vertical1");
+                    break;
+                case 2:
+                    //h = Input.GetAxisRaw("Horizontal2");
+                    //v = Input.GetAxisRaw("Vertical2");
+                    break;
+                case 3:
+                    //h = Input.GetAxisRaw("Horizontal3");
+                    //v = Input.GetAxisRaw("Vertical3");
+                    break;
+            }
+
+            return isDown;
+        }
+
+        private Vector2 GetInDirectionFromInputBasedOnPlayerIndex()
         {
             float h = 0f, v = 0f;
 
@@ -76,20 +150,47 @@ using UnityEngine.SceneManagement;
                     v = Input.GetAxisRaw ("Vertical");
                     break;
                 case 1:
-                    h = Input.GetAxisRaw("Horizontal1");
-                    v = Input.GetAxisRaw("Vertical1");
+                    //h = Input.GetAxisRaw("Horizontal1");
+                    //v = Input.GetAxisRaw("Vertical1");
                     break;
                 case 2:
-                    h = Input.GetAxisRaw("Horizontal2");
-                    v = Input.GetAxisRaw("Vertical2");
+                    //h = Input.GetAxisRaw("Horizontal2");
+                    //v = Input.GetAxisRaw("Vertical2");
                     break;
                 case 3:
-                    h = Input.GetAxisRaw("Horizontal3");
-                    v = Input.GetAxisRaw("Vertical3");
+                    //h = Input.GetAxisRaw("Horizontal3");
+                    //v = Input.GetAxisRaw("Vertical3");
                     break;
             }
 
             return new Vector2(h, v);
+        }
+
+        private Vector2 GetInAimDirectionFromInputBasedOnPlayerIndex()
+        {
+            float hori = 0f, vert = 0f;
+
+            switch(playerIndex)
+            {
+                case 0:
+                    hori = Input.GetAxisRaw ("HorizontalAim");
+                    vert = Input.GetAxisRaw ("VerticalAim");
+                    break;
+                case 1:
+                    //h = Input.GetAxisRaw("HorizontalAim1");
+                    //v = Input.GetAxisRaw("VerticalAim1");
+                    break;
+                case 2:
+                    //h = Input.GetAxisRaw("HorizontalAim2");
+                    //v = Input.GetAxisRaw("VerticalAim2");
+                    break;
+                case 3:
+                    //h = Input.GetAxisRaw("HorizontalAim3");
+                    //v = Input.GetAxisRaw("VerticalAim3");
+                    break;
+            }
+
+            return new Vector2(hori, vert);
         }
 		
 		//AttemptMove overrides the AttemptMove function in the base class MovingObject
@@ -112,7 +213,7 @@ using UnityEngine.SceneManagement;
 			if (Move (inDir, out hit)) 
 			{
 				//Call RandomizeSfx of SoundManager to play the move sound, passing in two audio clips to choose from.
-				SoundManager.instance.RandomizeSfx (moveSound1, moveSound2);
+				//SoundManager.instance.RandomizeSfx (moveSound1, moveSound2);
 			}
 			
 			//Since the player has moved and lost food points, check if the game has ended.
@@ -141,18 +242,8 @@ using UnityEngine.SceneManagement;
 		//OnTriggerEnter2D is sent when another object enters a trigger collider attached to this object (2D physics only).
 		private void OnTriggerEnter2D (Collider2D other)
 		{
-			//Check if the tag of the trigger collided with is Exit.
-			if(other.tag == "Exit")
-			{
-				//Invoke the Restart function to start the next level with a delay of restartLevelDelay (default 1 second).
-				Invoke ("Restart", restartLevelDelay);
-				
-				//Disable the player object since level is over.
-				enabled = false;
-			}
-			
 			//Check if the tag of the trigger collided with is Food.
-			else if(other.tag == "Food")
+			if(other.tag == "Food")
 			{
 				//Add pointsPerFood to the players current food total.
 				food += pointsPerFood;
@@ -161,7 +252,7 @@ using UnityEngine.SceneManagement;
 				foodText.text = "+" + pointsPerFood + " Food: " + food;
 				
 				//Call the RandomizeSfx function of SoundManager and pass in two eating sounds to choose between to play the eating sound effect.
-				SoundManager.instance.RandomizeSfx (eatSound1, eatSound2);
+				//SoundManager.instance.RandomizeSfx (eatSound1, eatSound2);
 				
 				//Disable the food object the player collided with.
 				other.gameObject.SetActive (false);
@@ -177,7 +268,7 @@ using UnityEngine.SceneManagement;
 				foodText.text = "+" + pointsPerSoda + " Food: " + food;
 				
 				//Call the RandomizeSfx function of SoundManager and pass in two drinking sounds to choose between to play the drinking sound effect.
-				SoundManager.instance.RandomizeSfx (drinkSound1, drinkSound2);
+				//SoundManager.instance.RandomizeSfx (drinkSound1, drinkSound2);
 				
 				//Disable the soda object the player collided with.
 				other.gameObject.SetActive (false);
@@ -218,9 +309,6 @@ using UnityEngine.SceneManagement;
 			//Check if food point total is less than or equal to zero.
 			if (false) 
 			{
-				//Call the PlaySingle function of SoundManager and pass it the gameOverSound as the audio clip to play.
-				SoundManager.instance.PlaySingle (gameOverSound);
-				
 				//Stop the background music.
 				SoundManager.instance.musicSource.Stop();
 				
@@ -228,4 +316,21 @@ using UnityEngine.SceneManagement;
 				GameManager.instance.GameOver ();
 			}
 		}
+
+        #region Force
+
+        /// <summary>
+        /// When we are pushed, change the type of rigidbody to 
+        /// </summary>
+        /// <param name="pushDir">Push dir.</param>
+        public void Push(Vector2 pushDir)
+        {
+            Debug.Log(pushDir + "!");
+            Rigidbody2D rb2d = GetComponent<Rigidbody2D>();
+            rb2d.bodyType = RigidbodyType2D.Dynamic;
+
+            rb2d.AddForce(pushDir * 100f, ForceMode2D.Impulse);
+        }
+
+        #endregion
 	}

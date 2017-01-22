@@ -50,7 +50,8 @@ public abstract class MovingObject : MonoBehaviour
 		//if(hit.transform == null)
 		//{
 			//If nothing was hit, start SmoothMovement co-routine passing in the Vector2 end as destination
-			rb2D.velocity = modVelocity;
+            if(rb2D.bodyType == RigidbodyType2D.Kinematic)
+			    rb2D.velocity = modVelocity;
 
 			//Return true to say that Move was successful
 			return true;
