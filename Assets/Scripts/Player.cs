@@ -61,7 +61,7 @@ using UnityEngine.SceneManagement;
                     _egg = eggObj.GetComponent<Egg>();
                 }
 
-                return egg;
+                return _egg;
             }
         }
 		
@@ -283,31 +283,6 @@ using UnityEngine.SceneManagement;
 		//OnTriggerEnter2D is sent when another object enters a trigger collider attached to this object (2D physics only).
 		private void OnTriggerEnter2D (Collider2D other)
 		{
-			//Check if the tag of the trigger collided with is Food.
-			if(other.tag == "Food")
-			{
-				//Add pointsPerFood to the players current food total.
-				food += pointsPerFood;
-				
-				//Call the RandomizeSfx function of SoundManager and pass in two eating sounds to choose between to play the eating sound effect.
-				//SoundManager.instance.RandomizeSfx (eatSound1, eatSound2);
-				
-				//Disable the food object the player collided with.
-				other.gameObject.SetActive (false);
-			}
-			
-			//Check if the tag of the trigger collided with is Soda.
-			else if(other.tag == "Soda")
-			{
-				//Add pointsPerSoda to players food points total
-				food += pointsPerSoda;            
-				
-				//Call the RandomizeSfx function of SoundManager and pass in two drinking sounds to choose between to play the drinking sound effect.
-				//SoundManager.instance.RandomizeSfx (drinkSound1, drinkSound2);
-				
-				//Disable the soda object the player collided with.
-				other.gameObject.SetActive (false);
-			}
 		}
 		
 		
@@ -351,33 +326,19 @@ using UnityEngine.SceneManagement;
         
 	public bool CheckIfDead ()
 	{
-		bool x = background.GetComponent<BoxCollider2D> ().bounds.Contains(this.transform.position);
-        //Debug.Log (x);
-        //Debug.Log("player position:"+ this.transform.position.x+this.transform.position.y);
-        //Debug.Log("box position:"+ this.GetComponent<BoxCollider2D>().bounds.extents.x + this.GetComponent<BoxCollider2D>().bounds.extents.y);
+		bool isContainedInBackground = background.GetComponent<BoxCollider2D> ().bounds.Contains(this.transform.position);
 
-        if (!x)
+        if (!isContainedInBackground)
         {
-            this.gameObject.SetActive(false);
-            //playerShrink ();
-
-            //Debug.Log ("destroied");
             isDead = true;
-			AudioSource.PlayClipAtPoint(moveSound1,transform.position);
-
-            //Debug.Log ("yo" + isDead);
-            //yield return new WaitForSeconds(1f);
+            if(moveSound1 != null)
+            {
+			    AudioSource.PlayClipAtPoint(moveSound1,transform.position);
+            }
 
             Debug.Log("wait");
 
             this.transform.position = playerPosition;
-            this.gameObject.SetActive(true);
-            //return false;
-            //}
-            //			this.transform.localScale = new Vector2 (1f, 1f);
-            //this.gameObject.SetActive (true);
-            //Destroy(this.gameObject);
-            //isDead = false;
         }
         else
         {

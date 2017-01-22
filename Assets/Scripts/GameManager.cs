@@ -51,8 +51,8 @@ public class GameManager : MonoBehaviour
 	private bool enemiesMoving;								//Boolean to check if enemies are moving.
 	private bool doingSetup = true;                         //Boolean to check if we're setting up board, prevent Player from moving during setup.
     public GameScore score;                                 //Scores of both teams
-    public List<Player> leftTeam;                           //Holds players of left team
-    public List<Player> rightTeam;                          //Holds players of right team
+    public List<Player> leftTeam = new List<Player>();                           //Holds players of left team
+    public List<Player> rightTeam = new List<Player>();                          //Holds players of right team
 
     //Awake is always called before any Start functions
     void Awake()
@@ -79,7 +79,6 @@ public class GameManager : MonoBehaviour
 		boardScript = GetComponent<BoardManager>();
 
         //Set left team and right team
-        /*
         Player[] players = FindObjectsOfType(typeof(Player)) as Player[];
 
         for (int i = 0; i < players.Length; i++)
@@ -93,7 +92,7 @@ public class GameManager : MonoBehaviour
                 rightTeam.Add(players[i]);
             }
             players[i].isHoldingEgg = false;
-        }*/
+        }
         //Call the InitGame function to initialize the first level 
         InitGame();
 	}
