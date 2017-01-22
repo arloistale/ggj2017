@@ -31,16 +31,42 @@ using UnityEngine.SceneManagement;
 		public AudioClip eatSound2;					//2 of 2 Audio clips to play when player collects a food object.
 		public AudioClip drinkSound1;				//1 of 2 Audio clips to play when player collects a soda object.
 		public AudioClip drinkSound2;				//2 of 2 Audio clips to play when player collects a soda object.
-		public AudioClip gameOverSound;				//Audio clip to play when player dies.
-		public bool isDead;
-		public GameObject background;
+		public AudioClip gameOverSound;				//Audio clip to play when player dies.		
+
 		public Vector2 playerPosition;
 
         public AudioClip pickUpSound;               //Pick up Egg sound
         public AudioClip dropSound;                 //Egg is dropped sound
-        public Egg egg;
-        public GameObject leftBase;
-        public GameObject rightBase;
+
+        private GameObject _leftBase;
+        public GameObject leftBase
+        {
+            get
+            {
+                if(_leftBase == null)
+                {
+                    _leftBase = GameObject.Find("LeftBase");
+                }
+
+                return _leftBase;
+            }
+        }
+
+        private GameObject _rightBase;
+        public GameObject rightBase
+        {
+        get
+            {
+                if(_rightBase == null)
+                {
+                    _rightBase = GameObject.Find("RightBase");
+                }
+
+                return _rightBase;
+            }
+        }
+
+
         public bool isHoldingEgg = false;
         public bool isLeftTeam;
 
@@ -48,6 +74,21 @@ using UnityEngine.SceneManagement;
 		public float scaley;
 
         public int playerIndex = 0;
+
+        private Egg _egg;
+        public Egg egg
+        {
+            get
+            {
+                if(_egg == null)
+                {
+                    var eggObj = GameObject.Find("Egg");
+                    _egg = eggObj.GetComponent<Egg>();
+                }
+
+                return _egg;
+            }
+        }
 		
 		private Animator animator;					//Used to store a reference to the Player's animator component.
 		private int food;                           //Used to store player food points total during level.
@@ -61,17 +102,12 @@ using UnityEngine.SceneManagement;
 		{
 			//Get a component reference to the Player's animator component
 			animator = GetComponent<Animator>();
-
-			background = GameObject.Find("background");
-			
-			isDead = false;
-
+         
 			playerPosition = this.transform.position;
-			Debug.Log (playerPosition);
 			
 			//Get the current food point total stored in GameManager.instance between levels.
 			food = GameManager.instance.playerFoodPoints;
-			
+
             _aimDirection = transform.forward;
 			
 			//Call the Start function of the MovingObject base class.
@@ -104,6 +140,9 @@ using UnityEngine.SceneManagement;
             {
                 FirePrimaryInAimDirection();
             }
+
+            // die if needed
+            DieIfNeeded();
 		}
 
         private void FirePrimaryInAimDirection()
@@ -221,7 +260,6 @@ using UnityEngine.SceneManagement;
 		{
         	//Every time player moves, subtract from food points total.
 			food--;
-			
 			//Call the AttemptMove method of the base class, passing in the component T (in this case Wall) and x and y direction to move.
 			base.AttemptMove <T> (inDir);
 			
@@ -239,7 +277,7 @@ using UnityEngine.SceneManagement;
 			CheckIfGameOver ();
 
 			//Debug.Log ("not dead");
-			CheckIfDead ();
+			DieIfNeeded ();
 	
 			
 			//Set the playersTurn boolean of GameManager to false now that players turn is over.
@@ -265,31 +303,6 @@ using UnityEngine.SceneManagement;
 		//OnTriggerEnter2D is sent when another object enters a trigger collider attached to this object (2D physics only).
 		private void OnTriggerEnter2D (Collider2D other)
 		{
-			//Check if the tag of the trigger collided with is Food.
-			if(other.tag == "Food")
-			{
-				//Add pointsPerFood to the players current food total.
-				food += pointsPerFood;
-				
-				//Call the RandomizeSfx function of SoundManager and pass in two eating sounds to choose between to play the eating sound effect.
-				//SoundManager.instance.RandomizeSfx (eatSound1, eatSound2);
-				
-				//Disable the food object the player collided with.
-				other.gameObject.SetActive (false);
-			}
-			
-			//Check if the tag of the trigger collided with is Soda.
-			else if(other.tag == "Soda")
-			{
-				//Add pointsPerSoda to players food points total
-				food += pointsPerSoda;
-				
-				//Call the RandomizeSfx function of SoundManager and pass in two drinking sounds to choose between to play the drinking sound effect.
-				//SoundManager.instance.RandomizeSfx (drinkSound1, drinkSound2);
-				
-				//Disable the soda object the player collided with.
-				other.gameObject.SetActive (false);
-			}
 		}
 		
 		
@@ -322,41 +335,6 @@ using UnityEngine.SceneManagement;
 		{
 
 		}
-        
-	public bool CheckIfDead ()
-	{
-		bool x = background.GetComponent<BoxCollider2D> ().bounds.Contains(this.transform.position);
-        //Debug.Log (x);
-        //Debug.Log("player position:"+ this.transform.position.x+this.transform.position.y);
-        //Debug.Log("box position:"+ this.GetComponent<BoxCollider2D>().bounds.extents.x + this.GetComponent<BoxCollider2D>().bounds.extents.y);
-
-        if (!x)
-        {
-            this.gameObject.SetActive(false);
-            //playerShrink ();
-
-            //Debug.Log ("destroied");
-            isDead = true;
-            //Debug.Log ("yo" + isDead);
-            //yield return new WaitForSeconds(1f);
-
-            Debug.Log("wait");
-
-            this.transform.position = playerPosition;
-            this.gameObject.SetActive(true);
-            //return false;
-            //}
-            //			this.transform.localScale = new Vector2 (1f, 1f);
-            //this.gameObject.SetActive (true);
-            //Destroy(this.gameObject);
-            //isDead = false;
-        }
-        else
-        {
-            isDead = false;
-        }
-        return isDead;
-    }
 
     public void playHoldingSound()
     {

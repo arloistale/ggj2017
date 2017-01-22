@@ -54,8 +54,8 @@ public class GameManager : MonoBehaviour
 	private bool enemiesMoving;								//Boolean to check if enemies are moving.
 	private bool doingSetup = true;                         //Boolean to check if we're setting up board, prevent Player from moving during setup.
     public GameScore score;                                 //Scores of both teams
-    public List<Player> leftTeam;                           //Holds players of left team
-    public List<Player> rightTeam;                          //Holds players of right team
+    public List<Player> leftTeam = new List<Player>();                           //Holds players of left team
+    public List<Player> rightTeam = new List<Player>();                          //Holds players of right team
 
     //Awake is always called before any Start functions
     void Awake()
@@ -93,11 +93,13 @@ public class GameManager : MonoBehaviour
         {
             leftTeam[i].isHoldingEgg = false;
             leftTeam[i].egg.gameObject.SetActive(true);
+            leftTeam[i].egg.Respawn();
         }
         for (int i = 0; i < rightTeam.Count; i++)
         {
             rightTeam[i].isHoldingEgg = false;
             rightTeam[i].egg.gameObject.SetActive(true);
+            rightTeam[i].egg.Respawn();
         }
     }
 
@@ -246,14 +248,13 @@ public class GameManager : MonoBehaviour
 
             if (leftTeam[i].isHoldingEgg)
             {
-                Debug.Log(leftTeam[i].isDead);
                 if (Vector2.Distance(leftTeam[i].transform.position, leftTeam[i].leftBase.transform.position) < 1)
                 {
                     //Left team scored
                     score.scoredT1();
                     resetEgg();
                 }
-                if (leftTeam[i].CheckIfDead())
+                if (leftTeam[i].DieIfNeeded())
                 {
                     Debug.Log("DEAD");
                     resetEgg();
@@ -281,7 +282,7 @@ public class GameManager : MonoBehaviour
                     rightTeam[i].rightBase.gameObject.SetActive(false);
                     score.scoredT1();
                 }
-                if (rightTeam[i].CheckIfDead())
+                if (rightTeam[i].DieIfNeeded())
                 {
                     rightTeam[i].isHoldingEgg = false;
                     rightTeam[i].egg.gameObject.SetActive(true);
