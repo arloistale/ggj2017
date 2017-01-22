@@ -37,7 +37,15 @@ using UnityEngine.SceneManagement;
 		public GameObject background;
 		public Vector2 playerPosition;
 
-		public float scalex;
+        public AudioClip pickUpSound;               //Pick up Egg sound
+        public AudioClip dropSound;                 //Egg is dropped sound
+        public Egg egg;
+        public GameObject leftBase;
+        public GameObject rightBase;
+        public bool isHoldingEgg = false;
+        public bool isLeftTeam;
+
+        public float scalex;
 		public float scaley;
 
         public int playerIndex = 0;
@@ -368,15 +376,20 @@ using UnityEngine.SceneManagement;
 		}
 	}
 
-//	void playerShrink(){
-//		
-//		if (this.transform.localScale.x > 0.1f) {
-//			scalex = this.transform.localScale.x;
-//			scaley = this.transform.localScale.y;
-//			this.transform.localScale = new Vector2 (0.99f * scalex, 0.999f * scaley);
-//			Debug.Log (this.transform.localScale.x);
-//			Debug.Log (scalex);
-//			playerShrink ();
-//		}
-//    }	
+    public void playHoldingSound()
+    {
+        SoundManager.instance.PlaySingle(pickUpSound);
+        //SoundManager.instance.musicSource.Stop();
+    }
+    //	void playerShrink(){
+    //		
+    //		if (this.transform.localScale.x > 0.1f) {
+    //			scalex = this.transform.localScale.x;
+    //			scaley = this.transform.localScale.y;
+    //			this.transform.localScale = new Vector2 (0.99f * scalex, 0.999f * scaley);
+    //			Debug.Log (this.transform.localScale.x);
+    //			Debug.Log (scalex);
+    //			playerShrink ();
+    //		}
+    //    }	
 }
