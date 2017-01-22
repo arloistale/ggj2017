@@ -35,7 +35,8 @@ public struct GameScore
 
 public class GameManager : MonoBehaviour
 {
-    public const int WINNING_SCORE = 3;
+	AudioSource audioSource;
+	public const int WINNING_SCORE = 3;
     public float levelStartDelay = 2f;						//Time to wait before starting level, in seconds.
 	public float turnDelay = 0.1f;							//Delay between each Player turn.
 	public int playerFoodPoints = 100;						//Starting value for Player food points.
@@ -82,6 +83,8 @@ public class GameManager : MonoBehaviour
 		boardScript = GetComponent<BoardManager>();
         //Call the InitGame function to initialize the first level 
         InitGame();
+
+		audioSource = GetComponent<AudioSource> ();
 	}
 
     public void resetEgg()
@@ -221,6 +224,7 @@ public class GameManager : MonoBehaviour
             levelText.text = "Team 1 Wins!";
             levelImage.SetActive(true);
             StartCoroutine(delay(2.0f));
+			audioSource.Play ();
 
         }
         else if (score.getTeam2() == WINNING_SCORE)
@@ -229,6 +233,7 @@ public class GameManager : MonoBehaviour
             levelText.text = "Team 2 Wins!";
             levelImage.SetActive(true);
             StartCoroutine(delay(2.0f));
+			audioSource.Play ();
         }
     }
 	//Update is called every frame.
