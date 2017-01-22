@@ -320,15 +320,7 @@ using UnityEngine.SceneManagement;
 		//CheckIfGameOver checks if the player is out of food points and if so, ends the game.
 		private void CheckIfGameOver ()
 		{
-			//Check if food point total is less than or equal to zero.
-			if (false) 
-			{
-				//Stop the background music.
-				SoundManager.instance.musicSource.Stop();
-				
-				//Call the GameOver function of GameManager.
-				GameManager.instance.GameOver ();
-			}
+
 		}
         
 	public bool CheckIfDead ()

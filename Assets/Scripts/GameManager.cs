@@ -42,6 +42,8 @@ public class GameManager : MonoBehaviour
 	public static GameManager instance = null;				//Static instance of GameManager which allows it to be accessed by any other script.
 	[HideInInspector] public bool playersTurn = true;       //Boolean to check if it's players turn, hidden in inspector but public.
 
+    private GameObject logo;                          //Image to block out level as levels are being set up, background for levelText.
+    private GameObject credits;                          //Image to block out level as levels are being set up, background for levelText.
     private Text scoreText;
 	private Text levelText;                                 //Text to display current level number.
     private GameObject levelImage;                          //Image to block out level as levels are being set up, background for levelText.
@@ -75,27 +77,10 @@ public class GameManager : MonoBehaviour
 		
 		//Assign enemies to a new List of Enemy objects.
 		enemies = new List<Enemy>();
-        leftTeam.Clear();
-        rightTeam.Clear();
 
 		//Get a component reference to the attached BoardManager script
 		boardScript = GetComponent<BoardManager>();
 
-        //Set left team and right team
-        Player[] players = FindObjectsOfType(typeof(Player)) as Player[];
-
-        for (int i = 0; i < players.Length; i++)
-        {
-            if (players[i].isLeftTeam)
-            {
-                leftTeam.Add(players[i]);
-            }
-            else
-            {
-                rightTeam.Add(players[i]);
-            }
-            players[i].isHoldingEgg = false;
-        }
         //Call the InitGame function to initialize the first level 
         InitGame();
 	}
@@ -136,27 +121,60 @@ public class GameManager : MonoBehaviour
 	//Initializes the game for each level.
 	void InitGame()
 	{
-		//While doingSetup is true the player can't move, prevent player from moving while title card is up.
-		doingSetup = true;
+
+        leftTeam.Clear();
+        rightTeam.Clear();
+
+        //Set left team and right team
+        Player[] players = FindObjectsOfType(typeof(Player)) as Player[];
+
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (players[i].isLeftTeam)
+            {
+                leftTeam.Add(players[i]);
+            }
+            else
+            {
+                rightTeam.Add(players[i]);
+            }
+            players[i].isHoldingEgg = false;
+        }
+        
+        //While doingSetup is true the player can't move, prevent player from moving while title card is up.
+        doingSetup = true;
 
         //Get a reference to our image LevelImage by finding it by name.
         levelImage = GameObject.Find("LevelImage");
-        scoreImage = GameObject.Find("ScoreImage");
+        
+        logo = GameObject.Find("logo");
+        credits = GameObject.Find("credits");
+
+        logo.SetActive(true);
+        credits.SetActive(false);
+
+        showlogo(2.0f);
+        showcredits(2.0f);
+        credits.SetActive(false);
+        
+        //Reset scores
+        score.reset();
+        levelText.text = "Start";
 
         //Get a reference to our text LevelText's text component by finding it by name and calling GetComponent.
         levelText = GameObject.Find("LevelText").GetComponent<Text>();
-        scoreText = GameObject.Find("ScoreText").GetComponent<Text>();
+        scoreText = GameObject.Find("ScoreTxt").GetComponent<Text>();
 
         //Set the text of levelText to the string "Day" and append the current level number.
         levelText.text = "Round " + level;
-        scoreText.text = "SCORES";
+        scoreText.text = score.getTeam1() + " : " + score.getTeam2();
 
         //Set levelImage to active blocking player's view of the game board during setup.
         levelImage.SetActive(true);
   
         //Call the HideLevelImage function with a delay in seconds of levelStartDelay.
         Invoke("HideLevelImage", levelStartDelay);
-        scoreImage.SetActive(true);
+        levelImage.SetActive(false);
 
         //Clear any Enemy objects in our List to prepare for next level.
         enemies.Clear();
@@ -167,9 +185,21 @@ public class GameManager : MonoBehaviour
         //Reset isHoldingEgg condition for both teams
         resetEgg();
 
-        //Reset scores
-        score.reset();
     }
+
+    IEnumerator showlogo(float time)
+    {
+        yield return new WaitForSeconds(time);
+        logo.SetActive(true);
+    }
+
+    IEnumerator showcredits(float time)
+    {
+        yield return new WaitForSeconds(time);
+        logo.SetActive(false);
+        credits.SetActive(true);
+    }
+
 
 
     //Hides black image used between levels
@@ -184,27 +214,20 @@ public class GameManager : MonoBehaviour
 	
     void checkWinningConditions()
     {
-        if (score.getTeam1() == WINNING_SCORE)
+        if (score.getTeam1() == 0)
         {
             //Set levelText to display number of levels passed and game over message
             levelText.text = "Team 1 Wins!";
-
-            //Enable black background image gameObject.
             levelImage.SetActive(true);
+            StartCoroutine(delay(2.0f));
 
-            Invoke("HideLevelImage", levelStartDelay);
-            Awake();
         }
         else if (score.getTeam2() == WINNING_SCORE)
         {
             //Set levelText to display number of levels passed and game over message
             levelText.text = "Team 2 Wins!";
-
-            //Enable black background image gameObject.
             levelImage.SetActive(true);
-
-            Invoke("HideLevelImage", levelStartDelay);
-            Awake();
+            StartCoroutine(delay(2.0f));
         }
     }
 	//Update is called every frame.
@@ -275,8 +298,6 @@ public class GameManager : MonoBehaviour
         */
         //if captured, check if winning team won. 2 out of 3
         scoreText.text = score.getTeam1() + " : " + score.getTeam2();
-        scoreImage.SetActive(false);
-
         checkWinningConditions();
 
         //Check that playersTurn or enemiesMoving or doingSetup are not currently true.
@@ -296,19 +317,6 @@ public class GameManager : MonoBehaviour
 		enemies.Add(script);
 	}
 	
-	
-	//GameOver is called when the player reaches 0 food points
-	public void GameOver()
-	{
-		//Set levelText to display number of levels passed and game over message
-		levelText.text = "";
-		
-		//Enable black background image gameObject.
-		levelImage.SetActive(true);
-		
-		//Disable this GameManager.
-		enabled = false;
-	}
 	
 	//Coroutine to move enemies in sequence.
 	IEnumerator MoveEnemies()
@@ -341,4 +349,9 @@ public class GameManager : MonoBehaviour
 		//Enemies are done moving, set enemiesMoving to false.
 		enemiesMoving = false;
 	}
+    IEnumerator delay(float time)
+    {
+        yield return new WaitForSeconds(time);
+        InitGame();
+    }
 }
