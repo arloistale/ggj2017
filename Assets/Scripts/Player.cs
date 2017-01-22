@@ -39,7 +39,7 @@ using UnityEngine.SceneManagement;
 
         public AudioClip pickUpSound;               //Pick up Egg sound
         public AudioClip dropSound;                 //Egg is dropped sound
-        public Egg egg;
+       
         public GameObject leftBase;
         public GameObject rightBase;
         public bool isHoldingEgg = false;
@@ -49,6 +49,21 @@ using UnityEngine.SceneManagement;
 		public float scaley;
 
         public int playerIndex = 0;
+
+        private Egg _egg;
+        public Egg egg
+        {
+            get
+            {
+                if(_egg == null)
+                {
+                    var eggObj = GameObject.Find("Egg");
+                    _egg = eggObj.GetComponent<Egg>();
+                }
+
+                return egg;
+            }
+        }
 		
 		private Animator animator;					//Used to store a reference to the Player's animator component.
 		private int food;                           //Used to store player food points total during level.
@@ -68,7 +83,6 @@ using UnityEngine.SceneManagement;
 			isDead = false;
 
 			playerPosition = this.transform.position;
-			Debug.Log (playerPosition);
 			
 			//Get the current food point total stored in GameManager.instance between levels.
 			food = GameManager.instance.playerFoodPoints;
