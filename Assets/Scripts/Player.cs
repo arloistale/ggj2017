@@ -95,7 +95,7 @@ using UnityEngine.SceneManagement;
 		{
 			//Check if we are running either in the Unity editor or in a standalone build.
 
-            Vector2 inMoveDir = GetInDirectionFromInputBasedOnPlayerIndex().normalized;
+            Vector2 inMoveDir = GetInDirectionFromInputBasedOnPlayerIndex();
             Vector2 inAimDir = GetInAimDirectionFromInputBasedOnPlayerIndex().normalized;
 
             bool primaryFireDown = GetPrimaryFireDownFromInputBasedOnPlayerIndex();
@@ -150,15 +150,15 @@ using UnityEngine.SceneManagement;
                     isDown = Input.GetButtonDown("Fire1");
                     break;
                 case 1:
-                    //h = Input.GetAxisRaw("Horizontal1");
+                    isDown = Input.GetButtonDown("Fire2");
                     //v = Input.GetAxisRaw("Vertical1");
                     break;
                 case 2:
-                    //h = Input.GetAxisRaw("Horizontal2");
+                    isDown = Input.GetButtonDown("Fire3");
                     //v = Input.GetAxisRaw("Vertical2");
                     break;
                 case 3:
-                    //h = Input.GetAxisRaw("Horizontal3");
+                    isDown = Input.GetButtonDown("Fire4");
                     //v = Input.GetAxisRaw("Vertical3");
                     break;
             }
@@ -177,16 +177,16 @@ using UnityEngine.SceneManagement;
                     v = Input.GetAxisRaw ("Vertical");
                     break;
                 case 1:
-                    //h = Input.GetAxisRaw("Horizontal1");
-                    //v = Input.GetAxisRaw("Vertical1");
+                    h = Input.GetAxisRaw("Horizontal1");
+                    v = Input.GetAxisRaw("Vertical1");
                     break;
                 case 2:
-                    //h = Input.GetAxisRaw("Horizontal2");
-                    //v = Input.GetAxisRaw("Vertical2");
+                    h = Input.GetAxisRaw("Horizontal2");
+                    v = Input.GetAxisRaw("Vertical2");
                     break;
                 case 3:
-                    //h = Input.GetAxisRaw("Horizontal3");
-                    //v = Input.GetAxisRaw("Vertical3");
+                    h = Input.GetAxisRaw("Horizontal3");
+                    v = Input.GetAxisRaw("Vertical3");
                     break;
             }
 
@@ -204,16 +204,16 @@ using UnityEngine.SceneManagement;
                     vert = Input.GetAxisRaw ("VerticalAim");
                     break;
                 case 1:
-                    //h = Input.GetAxisRaw("HorizontalAim1");
-                    //v = Input.GetAxisRaw("VerticalAim1");
+                    hori = Input.GetAxisRaw("HorizontalAim1");
+                    vert = Input.GetAxisRaw("VerticalAim1");
                     break;
                 case 2:
-                    //h = Input.GetAxisRaw("HorizontalAim2");
-                    //v = Input.GetAxisRaw("VerticalAim2");
+                    hori = Input.GetAxisRaw("HorizontalAim2");
+                    vert = Input.GetAxisRaw("VerticalAim2");
                     break;
                 case 3:
-                    //h = Input.GetAxisRaw("HorizontalAim3");
-                    //v = Input.GetAxisRaw("VerticalAim3");
+                    hori = Input.GetAxisRaw("HorizontalAim3");
+                    vert = Input.GetAxisRaw("VerticalAim3");
                     break;
             }
 
@@ -224,7 +224,7 @@ using UnityEngine.SceneManagement;
 		//AttemptMove takes a generic parameter T which for Player will be of the type Wall, it also takes integers for x and y direction to move in.
 		protected override void AttemptMove <T> (Vector2 inDir)
 		{
-			//Every time player moves, subtract from food points total.
+        	//Every time player moves, subtract from food points total.
 			food--;
 			
 			//Update food text display to reflect current score.

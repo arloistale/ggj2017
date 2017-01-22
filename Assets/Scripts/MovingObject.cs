@@ -7,7 +7,8 @@ public abstract class MovingObject : MonoBehaviour
     public float maxSpeed = 5f;
     public float speedDecay = 0.00001f;
 
-    private Vector2 _currVelocity;
+    public Vector2 currVelocity;
+    private Vector2 _currVelocity { get { return currVelocity; } set { Debug.Log("hey: " + value); currVelocity = value; } }
 
 	public float moveTime = 0.1f;			//Time it will take object to move, in seconds.
 	public LayerMask blockingLayer;			//Layer on which collision will be checked.
@@ -63,7 +64,7 @@ public abstract class MovingObject : MonoBehaviour
 			//If nothing was hit, start SmoothMovement co-routine passing in the Vector2 end as destination
        //     if(rb2D.bodyType == RigidbodyType2D.Kinematic)
 			    rb2D.velocity = _currVelocity;
-        Debug.Log(_currVelocity);
+        //Debug.Log(_currVelocity);
 			//Return true to say that Move was successful
 			return true;
 		//}
@@ -82,7 +83,7 @@ public abstract class MovingObject : MonoBehaviour
         float sqrInputMagnitude = inDir.sqrMagnitude;
 
         // if we are moving at all from the input direction, then set the velocity to the max in the correct direction
-        if(_isInputVelocityOverrideEnabled && sqrInputMagnitude > float.Epsilon)
+        if(_isInputVelocityOverrideEnabled && sqrInputMagnitude > .1)
         {
             return inDir * maxSpeed;
         }
