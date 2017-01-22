@@ -44,8 +44,8 @@ public class GameManager : MonoBehaviour
 
     private GameObject logo;                          //Image to block out level as levels are being set up, background for levelText.
     private GameObject credits;                          //Image to block out level as levels are being set up, background for levelText.
-    private Text scoreText;
-	private Text levelText;                                 //Text to display current level number.
+    public Text scoreText;
+	public Text levelText;                                 //Text to display current level number.
     private GameObject levelImage;                          //Image to block out level as levels are being set up, background for levelText.
     private GameObject scoreImage;
     private BoardManager boardScript;						//Store a reference to our BoardManager which will set up the level.
@@ -53,7 +53,7 @@ public class GameManager : MonoBehaviour
 	private List<Enemy> enemies;							//List of all Enemy units, used to issue them move commands.
 	private bool enemiesMoving;								//Boolean to check if enemies are moving.
 	private bool doingSetup = true;                         //Boolean to check if we're setting up board, prevent Player from moving during setup.
-    public GameScore score;                                 //Scores of both teams
+    public GameScore score = new GameScore();                                 //Scores of both teams
     public List<Player> leftTeam = new List<Player>();                           //Holds players of left team
     public List<Player> rightTeam = new List<Player>();                          //Holds players of right team
 
@@ -80,7 +80,6 @@ public class GameManager : MonoBehaviour
 
 		//Get a component reference to the attached BoardManager script
 		boardScript = GetComponent<BoardManager>();
-
         //Call the InitGame function to initialize the first level 
         InitGame();
 	}
@@ -149,19 +148,19 @@ public class GameManager : MonoBehaviour
         //Get a reference to our image LevelImage by finding it by name.
         levelImage = GameObject.Find("LevelImage");
         
-        logo = GameObject.Find("logo");
-        credits = GameObject.Find("credits");
+        //logo = GameObject.Find("logo");
+        //credits = GameObject.Find("credits");
 
-        logo.SetActive(true);
-        credits.SetActive(false);
+        //logo.SetActive(true);
+        //credits.SetActive(false);
 
-        showlogo(2.0f);
-        showcredits(2.0f);
-        credits.SetActive(false);
+        //showlogo(2.0f);
+        //showcredits(2.0f);
+        //credits.SetActive(false);
         
         //Reset scores
         score.reset();
-        levelText.text = "Start";
+        //levelText.text = "Start";
 
         //Get a reference to our text LevelText's text component by finding it by name and calling GetComponent.
         levelText = GameObject.Find("LevelText").GetComponent<Text>();
@@ -216,7 +215,7 @@ public class GameManager : MonoBehaviour
 	
     void checkWinningConditions()
     {
-        if (score.getTeam1() == 0)
+        if (score.getTeam1() == WINNING_SCORE)
         {
             //Set levelText to display number of levels passed and game over message
             levelText.text = "Team 1 Wins!";
