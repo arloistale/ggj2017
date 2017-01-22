@@ -6,23 +6,33 @@ public abstract class MovingObject : MonoBehaviour
 {
     public float maxSpeed = 5f;
     public float speedDecay = 0.00001f;
+
+    private Vector2 _currVelocity;
+
 	public float moveTime = 0.1f;			//Time it will take object to move, in seconds.
 	public LayerMask blockingLayer;			//Layer on which collision will be checked.
 	
 	private BoxCollider2D boxCollider; 		//The BoxCollider2D component attached to this object.
 	private Rigidbody2D rb2D;				//The Rigidbody2D component attached to this object.
-	
+
+    private bool _isInputVelocityOverrideEnabled;
 	
 	//Protected, virtual functions can be overridden by inheriting classes.
 	protected virtual void Start ()
 	{
+        EnableInputVelocityOverride(true);
+
 		//Get a component reference to this object's BoxCollider2D
 		boxCollider = GetComponent <BoxCollider2D> ();
 		
 		//Get a component reference to this object's Rigidbody2D
 		rb2D = GetComponent <Rigidbody2D> ();
 	}
-	
+
+    public void EnableInputVelocityOverride(bool flag)
+    {
+        _isInputVelocityOverrideEnabled = flag;
+    }
 	
 	//Move returns true if it is able to move and false if not. 
 	//Move takes parameters for x direction, y direction and a RaycastHit2D to check collision.
@@ -32,10 +42,10 @@ public abstract class MovingObject : MonoBehaviour
 		Vector2 start = transform.position;
 
         // get the modified velocity based on the input direction and the current velocity
-        Vector2 modVelocity = GetModifiedVelocity(inDir);
+        _currVelocity = GetModifiedVelocity(inDir);
 		
 		// Calculate end position based on the direction parameters passed in when calling Move.
-		Vector2 end = start + modVelocity;
+		Vector2 end = start + _currVelocity;
 		
 		//Disable the boxCollider so that linecast doesn't hit this object's own collider.
 		boxCollider.enabled = false;
@@ -51,7 +61,7 @@ public abstract class MovingObject : MonoBehaviour
 		//{
 			//If nothing was hit, start SmoothMovement co-routine passing in the Vector2 end as destination
             if(rb2D.bodyType == RigidbodyType2D.Kinematic)
-			    rb2D.velocity = modVelocity;
+			    rb2D.velocity = _currVelocity;
 
 			//Return true to say that Move was successful
 			return true;
@@ -71,18 +81,32 @@ public abstract class MovingObject : MonoBehaviour
         float sqrInputMagnitude = inDir.sqrMagnitude;
 
         // if we are moving at all from the input direction, then set the velocity to the max in the correct direction
-        if(sqrInputMagnitude > float.Epsilon)
+        if(_isInputVelocityOverrideEnabled && sqrInputMagnitude > float.Epsilon)
         {
             return inDir * maxSpeed;
         }
         else
         {
-            Vector2 currVelocity = rb2D.velocity;
-            float currMagnitude = rb2D.velocity.magnitude;
+            float currMagnitude = _currVelocity.magnitude;
             currMagnitude = Mathf.Max(currMagnitude - speedDecay, 0f);
-            return currVelocity.normalized * currMagnitude;
+            return _currVelocity.normalized * currMagnitude;
         }
 	}
+
+
+    #region Force
+
+    /// <summary>
+    /// When we are pushed, change the type of rigidbody to 
+    /// </summary>
+    /// <param name="pushVector">Push dir.</param>
+    public void Push(Vector2 pushVector)
+    {
+        EnableInputVelocityOverride(false);
+        _currVelocity += pushVector;
+    }
+
+    #endregion
 	
 	//The virtual keyword means AttemptMove can be overridden by inheriting classes using the override keyword.
 	//AttemptMove takes a generic parameter T to specify the type of component we expect our unit to interact with if blocked (Player for Enemies, Wall for Player).
