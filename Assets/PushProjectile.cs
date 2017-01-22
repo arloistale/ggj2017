@@ -53,6 +53,18 @@ public class PushProjectile : MonoBehaviour
                 didHit = true;
             }
         }
+        else
+        {
+            // otherwise we can just push the object if it's a moving object
+            MovingObject otherMovingObj = other.gameObject.GetComponent<MovingObject>();
+
+            if(otherMovingObj != null)
+            {
+                Vector2 diff = (other.transform.position - transform.position);
+                otherMovingObj.Push(diff * 13f);
+                didHit = true;
+            }
+        }
 
         if(didHit)
             Destroy(this.gameObject);
