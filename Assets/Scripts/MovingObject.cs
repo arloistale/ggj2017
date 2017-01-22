@@ -42,6 +42,7 @@ public abstract class MovingObject : MonoBehaviour
 		Vector2 start = transform.position;
 
         // get the modified velocity based on the input direction and the current velocity
+    //    Debug.Log(inDir);
         _currVelocity = GetModifiedVelocity(inDir);
 		
 		// Calculate end position based on the direction parameters passed in when calling Move.
@@ -60,9 +61,9 @@ public abstract class MovingObject : MonoBehaviour
 		//if(hit.transform == null)
 		//{
 			//If nothing was hit, start SmoothMovement co-routine passing in the Vector2 end as destination
-            if(rb2D.bodyType == RigidbodyType2D.Kinematic)
+       //     if(rb2D.bodyType == RigidbodyType2D.Kinematic)
 			    rb2D.velocity = _currVelocity;
-
+        Debug.Log(_currVelocity);
 			//Return true to say that Move was successful
 			return true;
 		//}
@@ -87,6 +88,7 @@ public abstract class MovingObject : MonoBehaviour
         }
         else
         {
+         //   Debug.Log("C:" + _currVelocity);
             float currMagnitude = _currVelocity.magnitude;
             currMagnitude = Mathf.Max(currMagnitude - speedDecay, 0f);
             return _currVelocity.normalized * currMagnitude;
