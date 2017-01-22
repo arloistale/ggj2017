@@ -32,7 +32,8 @@ using UnityEngine.SceneManagement;
 		public AudioClip eatSound2;					//2 of 2 Audio clips to play when player collects a food object.
 		public AudioClip drinkSound1;				//1 of 2 Audio clips to play when player collects a soda object.
 		public AudioClip drinkSound2;				//2 of 2 Audio clips to play when player collects a soda object.
-		public AudioClip gameOverSound;				//Audio clip to play when player dies.
+		public AudioClip gameOverSound;				//Audio clip to play when player dies.		
+
 		public bool isDead;
 		public GameObject background;
 		public Vector2 playerPosition;
@@ -377,6 +378,8 @@ using UnityEngine.SceneManagement;
 
             //Debug.Log ("destroied");
             isDead = true;
+			AudioSource.PlayClipAtPoint(moveSound1,transform.position);
+
             //Debug.Log ("yo" + isDead);
             //yield return new WaitForSeconds(1f);
 
