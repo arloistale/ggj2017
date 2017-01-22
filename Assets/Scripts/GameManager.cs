@@ -175,6 +175,20 @@ public class GameManager : MonoBehaviour
 		doingSetup = false;
 	}
 	
+    void checkWinningConditions()
+    {
+        if (score.getTeam1() == WINNING_SCORE)
+        {
+            //Team 1 Wins
+            Debug.Log("Team1!");
+
+        }
+        else if (score.getTeam2() == WINNING_SCORE)
+        {
+            //Team 2 Wins
+            Debug.Log("Team2!");
+        }
+    }
 	//Update is called every frame.
 	void Update()
 	{
@@ -242,16 +256,8 @@ public class GameManager : MonoBehaviour
         Debug.Log(score.getTeam2());
         */
         //if captured, check if winning team won. 2 out of 3
-        if (score.getTeam1() == WINNING_SCORE)
-        {
-            Debug.Log("Team1!");
-            //Team 1 wins
-        }
-        else if (score.getTeam2() == WINNING_SCORE)
-        {
-            Debug.Log("Team2!");
-            //Team 2 wins
-        }
+
+        checkWinningConditions();
 
         //Check that playersTurn or enemiesMoving or doingSetup are not currently true.
         if (playersTurn || enemiesMoving || doingSetup)
@@ -275,7 +281,7 @@ public class GameManager : MonoBehaviour
 	public void GameOver()
 	{
 		//Set levelText to display number of levels passed and game over message
-		levelText.text = "After " + level + " days, you starved.";
+		levelText.text = "Score: " + score.getTeam1() + ":" + score.getTeam2() + " days, you starved.";
 		
 		//Enable black background image gameObject.
 		levelImage.SetActive(true);

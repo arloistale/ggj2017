@@ -102,7 +102,6 @@ public class BoardManager : MonoBehaviour
 		return randomPosition;
 	}
 	
-	
 	//LayoutObjectAtRandom accepts an array of game objects to choose from along with a minimum and maximum range for the number of objects to create.
 	void LayoutObjectAtRandom (GameObject[] tileArray, int minimum, int maximum)
 	{
