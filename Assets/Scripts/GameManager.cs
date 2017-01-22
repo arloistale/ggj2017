@@ -99,7 +99,6 @@ public class GameManager : MonoBehaviour
 
     public void resetEgg()
     {
-        Debug.Log("hi: ");
         Player[] players = FindObjectsOfType(typeof(Player)) as Player[];
 
         for (int i = 0; i < leftTeam.Count; i++)
@@ -147,7 +146,7 @@ public class GameManager : MonoBehaviour
         scoreText = GameObject.Find("LevelText").GetComponent<Text>();
 
         //Set the text of levelText to the string "Day" and append the current level number.
-        levelText.text = "Round " + level;
+        levelText.text = "Grab the egg!";
 		
 		//Set levelImage to active blocking player's view of the game board during setup.
 		levelImage.SetActive(true);
@@ -210,7 +209,6 @@ public class GameManager : MonoBehaviour
 
             if (leftTeam[i].isHoldingEgg)
             {
-                Debug.Log(leftTeam[i].isDead);
                 if (Vector2.Distance(leftTeam[i].transform.position, leftTeam[i].leftBase.transform.position) < 1)
                 {
                     //Left team scored

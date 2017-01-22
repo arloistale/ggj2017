@@ -33,7 +33,6 @@ using UnityEngine.SceneManagement;
 		public AudioClip drinkSound2;				//2 of 2 Audio clips to play when player collects a soda object.
 		public AudioClip gameOverSound;				//Audio clip to play when player dies.		
 
-		public bool isDead;
 		public Vector2 playerPosition;
 
         public AudioClip pickUpSound;               //Pick up Egg sound
@@ -103,9 +102,7 @@ using UnityEngine.SceneManagement;
 		{
 			//Get a component reference to the Player's animator component
 			animator = GetComponent<Animator>();
-			
-			isDead = false;
-
+         
 			playerPosition = this.transform.position;
 			
 			//Get the current food point total stored in GameManager.instance between levels.

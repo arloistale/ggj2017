@@ -205,8 +205,6 @@ public abstract class MovingObject : MonoBehaviour
 
         EnableInputVelocityOverride(false);
 
-        Debug.Log("die die die");
-
         gameObject.SetActive(false);
 
         yield return new WaitForSeconds(_timeToRespawn);
@@ -216,8 +214,6 @@ public abstract class MovingObject : MonoBehaviour
         EnableInputVelocityOverride(true);
 
         _isDying = false;
-
-        Debug.Log("no die");
     }
 
     public void Respawn()
