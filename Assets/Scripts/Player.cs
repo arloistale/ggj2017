@@ -185,15 +185,12 @@ using UnityEngine.SceneManagement;
                     break;
                 case 1:
                     isDown = Input.GetButtonDown("Fire1");
-                    //v = Input.GetAxisRaw("Vertical1");
                     break;
                 case 2:
                     isDown = Input.GetButtonDown("Fire2");
-                    //v = Input.GetAxisRaw("Vertical2");
                     break;
                 case 3:
                     isDown = Input.GetButtonDown("Fire3");
-                    //v = Input.GetAxisRaw("Vertical3");
                     break;
             }
 
