@@ -15,6 +15,8 @@ public class Egg : MovingObject
         //Check if we are running either in the Unity editor or in a standalone build.
 
         // movement and aiming
-        AttemptMove<Wall> (Vector2.zero);        
+        AttemptMove<Wall> (Vector2.zero);  
+
+        DieIfNeeded();      
     }
 }

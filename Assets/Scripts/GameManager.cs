@@ -99,17 +99,20 @@ public class GameManager : MonoBehaviour
 
     public void resetEgg()
     {
+        Debug.Log("hi: ");
         Player[] players = FindObjectsOfType(typeof(Player)) as Player[];
 
         for (int i = 0; i < leftTeam.Count; i++)
         {
             leftTeam[i].isHoldingEgg = false;
             leftTeam[i].egg.gameObject.SetActive(true);
+            leftTeam[i].egg.Respawn();
         }
         for (int i = 0; i < rightTeam.Count; i++)
         {
             rightTeam[i].isHoldingEgg = false;
             rightTeam[i].egg.gameObject.SetActive(true);
+            rightTeam[i].egg.Respawn();
         }
     }
 
@@ -214,7 +217,7 @@ public class GameManager : MonoBehaviour
                     score.scoredT1();
                     resetEgg();
                 }
-                if (leftTeam[i].CheckIfDead())
+                if (leftTeam[i].DieIfNeeded())
                 {
                     Debug.Log("DEAD");
                     resetEgg();
@@ -242,7 +245,7 @@ public class GameManager : MonoBehaviour
                     rightTeam[i].rightBase.gameObject.SetActive(false);
                     score.scoredT1();
                 }
-                if (rightTeam[i].CheckIfDead())
+                if (rightTeam[i].DieIfNeeded())
                 {
                     rightTeam[i].isHoldingEgg = false;
                     rightTeam[i].egg.gameObject.SetActive(true);

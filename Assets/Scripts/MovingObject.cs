@@ -7,16 +7,48 @@ public abstract class MovingObject : MonoBehaviour
     public float maxSpeed = 5f;
     public float speedDecay = 0.00001f;
 
-    public Vector2 currVelocity;
-    private Vector2 _currVelocity { get { return currVelocity; } set { currVelocity = value; } }
+    [SerializeField]
+    private float _timeToRespawn = 3f;
 
 	public float moveTime = 0.1f;			//Time it will take object to move, in seconds.
 	public LayerMask blockingLayer;			//Layer on which collision will be checked.
+
+    private Vector2 _currVelocity;
 	
 	private BoxCollider2D boxCollider; 		//The BoxCollider2D component attached to this object.
 	private Rigidbody2D rb2D;				//The Rigidbody2D component attached to this object.
 
     private bool _isInputVelocityOverrideEnabled;
+
+    private GameObject _background;
+    protected GameObject Background
+    {
+        get
+        {
+            if(_background == null)
+            {
+                _background = GameObject.Find("background");
+            }
+
+            return _background;
+        }
+    }
+
+    private BoxCollider2D _respawnSafeZoneCollider;
+    public BoxCollider2D RespawnSafeZoneCollider
+    {
+        get
+        {
+            if(_respawnSafeZoneCollider == null)
+            {
+                _respawnSafeZoneCollider = GameObject.Find("RespawnSafeZone").GetComponent<BoxCollider2D>();
+            }
+
+            return _respawnSafeZoneCollider;
+        }
+    }
+
+    private bool _isDying = false;
 	
 	//Protected, virtual functions can be overridden by inheriting classes.
 	protected virtual void Start ()
@@ -33,6 +65,11 @@ public abstract class MovingObject : MonoBehaviour
     public void EnableInputVelocityOverride(bool flag)
     {
         _isInputVelocityOverrideEnabled = flag;
+    }
+
+    public void ResetMovement()
+    {
+        _currVelocity = Vector2.zero;
     }
 	
 	//Move returns true if it is able to move and false if not. 
@@ -136,7 +173,65 @@ public abstract class MovingObject : MonoBehaviour
 			//Call the OnCantMove function and pass it hitComponent as a parameter.
 			OnCantMove (hitComponent);
 	}
-	
+
+    public bool DieIfNeeded ()
+    {
+        if(_isDying)
+            return false;
+
+        var backgroundCollider = Background.GetComponent<BoxCollider2D>();
+        var checkPosition = new Vector3(transform.position.x, transform.position.y, backgroundCollider.transform.position.z);
+        bool shouldDie = !backgroundCollider.bounds.Contains(checkPosition);
+
+        if(shouldDie)
+        {
+            GameManager.instance.StartCoroutine(DieAndRespawn());
+
+            return true;
+        }
+
+        return false;
+    }
+
+    private IEnumerator DieAndRespawn()
+    {
+        _isDying = true;
+
+        /*
+            if(moveSound1 != null)
+            {
+                AudioSource.PlayClipAtPoint(moveSound1,transform.position);
+            }*/
+
+        EnableInputVelocityOverride(false);
+
+        Debug.Log("die die die");
+
+        gameObject.SetActive(false);
+
+        yield return new WaitForSeconds(_timeToRespawn);
+
+        Respawn();
+
+        EnableInputVelocityOverride(true);
+
+        _isDying = false;
+
+        Debug.Log("no die");
+    }
+
+    public void Respawn()
+    {
+        ResetMovement();
+        gameObject.SetActive(true);
+
+        Vector3 minPoint = RespawnSafeZoneCollider.bounds.min;
+        Vector3 maxPoint = RespawnSafeZoneCollider.bounds.max;
+
+        Vector3 spawnPoint = !this.name.Equals("Egg") ? new Vector3(Random.Range(minPoint.x, maxPoint.x), Random.Range(minPoint.y, maxPoint.y)) : new Vector3((minPoint.x + maxPoint.x) / 2, (minPoint.x + maxPoint.x) / 2);
+
+        this.transform.position = spawnPoint;
+    }
 	
 	//The abstract modifier indicates that the thing being modified has a missing or incomplete implementation.
 	//OnCantMove will be overriden by functions in the inheriting classes.

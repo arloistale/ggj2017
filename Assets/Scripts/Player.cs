@@ -34,7 +34,6 @@ using UnityEngine.SceneManagement;
 		public AudioClip gameOverSound;				//Audio clip to play when player dies.		
 
 		public bool isDead;
-		public GameObject background;
 		public Vector2 playerPosition;
 
         public AudioClip pickUpSound;               //Pick up Egg sound
@@ -104,8 +103,6 @@ using UnityEngine.SceneManagement;
 		{
 			//Get a component reference to the Player's animator component
 			animator = GetComponent<Animator>();
-
-			background = GameObject.Find("background");
 			
 			isDead = false;
 
@@ -148,6 +145,9 @@ using UnityEngine.SceneManagement;
             {
                 FirePrimaryInAimDirection();
             }
+
+            // die if needed
+            DieIfNeeded();
 		}
 
         private void FirePrimaryInAimDirection()
@@ -284,7 +284,7 @@ using UnityEngine.SceneManagement;
 			CheckIfGameOver ();
 
 			//Debug.Log ("not dead");
-			CheckIfDead ();
+			DieIfNeeded ();
 	
 			
 			//Set the playersTurn boolean of GameManager to false now that players turn is over.
@@ -350,31 +350,6 @@ using UnityEngine.SceneManagement;
 				GameManager.instance.GameOver ();
 			}
 		}
-        
-	public bool CheckIfDead ()
-	{
-        var backgroundCollider = background.GetComponent<BoxCollider2D>();
-        var checkPosition = new Vector3(transform.position.x, transform.position.y, backgroundCollider.transform.position.z);
-		bool isContainedInBackground = backgroundCollider.bounds.Contains(checkPosition);
-
-        if (!isContainedInBackground)
-        {
-            isDead = true;
-            if(moveSound1 != null)
-            {
-			    AudioSource.PlayClipAtPoint(moveSound1,transform.position);
-            }
-
-            Debug.Log("wait");
-
-            this.transform.position = playerPosition;
-        }
-        else
-        {
-            isDead = false;
-        }
-        return isDead;
-    }
 
     public void playHoldingSound()
     {
