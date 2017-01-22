@@ -5,9 +5,38 @@ using System.Collections;
 using System.Collections.Generic;		//Allows us to use Lists. 
 using UnityEngine.UI;					//Allows us to use UI.
 
+public struct GameScore
+{
+    int team1;
+    int team2;
+
+    public void reset()
+    {
+        team1 = 0;
+        team2 = 0;
+    }
+    public int getTeam1()
+    {
+        return team1;
+    }
+    public int getTeam2()
+    {
+        return team2;
+    }
+    public void scoredT1()
+    {
+        team1++;
+    }
+    public void scoredT2()
+    {
+        team2++;
+    }
+}
+
 public class GameManager : MonoBehaviour
 {
-	public float levelStartDelay = 2f;						//Time to wait before starting level, in seconds.
+    public const int WINNING_SCORE = 3;
+    public float levelStartDelay = 2f;						//Time to wait before starting level, in seconds.
 	public float turnDelay = 0.1f;							//Delay between each Player turn.
 	public int playerFoodPoints = 100;						//Starting value for Player food points.
 	public static GameManager instance = null;				//Static instance of GameManager which allows it to be accessed by any other script.
@@ -20,12 +49,14 @@ public class GameManager : MonoBehaviour
 	private int level = 1;									//Current level number, expressed in game as "Day 1".
 	private List<Enemy> enemies;							//List of all Enemy units, used to issue them move commands.
 	private bool enemiesMoving;								//Boolean to check if enemies are moving.
-	private bool doingSetup = true;							//Boolean to check if we're setting up board, prevent Player from moving during setup.
-	
-	
-	
-	//Awake is always called before any Start functions
-	void Awake()
+	private bool doingSetup = true;                         //Boolean to check if we're setting up board, prevent Player from moving during setup.
+    public GameScore score;                                 //Scores of both teams
+    public List<Player> leftTeam;                           //Holds players of left team
+    public List<Player> rightTeam;                          //Holds players of right team
+
+
+    //Awake is always called before any Start functions
+    void Awake()
 	{
         //Check if instance already exists
         if (instance == null)
@@ -47,10 +78,45 @@ public class GameManager : MonoBehaviour
 		
 		//Get a component reference to the attached BoardManager script
 		boardScript = GetComponent<BoardManager>();
-		
-		//Call the InitGame function to initialize the first level 
-		InitGame();
+
+        //Reset GameScore
+        score.reset();
+
+        //Set left team and right team
+        Player[] players = FindObjectsOfType(typeof(Player)) as Player[];
+
+        for (int i = 0; i < players.Length; i++)
+        {
+            if (players[i].isLeftTeam)
+            {
+                leftTeam.Add(players[i]);
+            }
+            else
+            {
+                rightTeam.Add(players[i]);
+            }
+            players[i].isHoldingEgg = false;
+        }
+
+        //Call the InitGame function to initialize the first level 
+        InitGame();
 	}
+
+    public void resetEgg()
+    {
+        Player[] players = FindObjectsOfType(typeof(Player)) as Player[];
+
+        for (int i = 0; i < leftTeam.Count; i++)
+        {
+            leftTeam[i].isHoldingEgg = false;
+            leftTeam[i].egg.gameObject.SetActive(true);
+        }
+        for (int i = 0; i < rightTeam.Count; i++)
+        {
+            rightTeam[i].isHoldingEgg = false;
+            rightTeam[i].egg.gameObject.SetActive(true);
+        }
+    }
 
     //this is called only once, and the paramter tell it to be called only after the scene was loaded
     //(otherwise, our Scene Load callback would be called the very first load, and we don't want that)
@@ -112,8 +178,83 @@ public class GameManager : MonoBehaviour
 	//Update is called every frame.
 	void Update()
 	{
-		//Check that playersTurn or enemiesMoving or doingSetup are not currently true.
-		if(playersTurn || enemiesMoving || doingSetup)
+        for (int i = 0; i < leftTeam.Count; i++)
+        {
+            //Check collision
+            if ((Vector2.Distance(leftTeam[i].transform.position, leftTeam[i].egg.transform.position) < 1) && (leftTeam[i].egg.gameObject.activeSelf))
+            {
+                //Player gathered egg
+                leftTeam[i].egg.gameObject.SetActive(false);
+                leftTeam[i].isHoldingEgg = true;
+                //    leftTeam[i].playHoldingSound();
+            }
+            /*
+             * if(dead){
+             *  isHoldingEgg = false;
+             *  egg.gameObject.setActive(true);
+             *  leftTeam[i].playDroppingSound();
+             * }
+             */
+            if (leftTeam[i].isHoldingEgg)
+            {
+                if (Vector2.Distance(leftTeam[i].transform.position, leftTeam[i].leftBase.transform.position) < 1)
+                {
+                    //Left team scored
+                    score.scoredT1();
+                    resetEgg();
+                }
+            }
+        }
+
+        for (int i = 0; i < rightTeam.Count; i++)
+        {
+            //Check collision
+            if (Vector2.Distance(rightTeam[i].transform.position, rightTeam[i].egg.transform.position) < 1)
+            {
+                rightTeam[i].egg.gameObject.SetActive(false);
+                rightTeam[i].isHoldingEgg = true;
+                //     rightTeam[i].playHoldingSound();
+            }
+            /*
+             * if(dead){
+             *  isHoldingEgg = false;
+             *  egg.gameObject.setActive(true);
+             *  leftTeam[i].playDropSound();
+             * }
+             */
+            if (rightTeam[i].isHoldingEgg)
+            {
+                if (!rightTeam[i].isLeftTeam)
+                {
+                    if (Vector2.Distance(rightTeam[i].transform.position, rightTeam[i].rightBase.transform.position) < 1)
+                    {
+                        //right team scored
+                        rightTeam[i].rightBase.gameObject.SetActive(false);
+                        score.scoredT1();
+                    }
+                }
+            }
+        }
+        /*
+         * 
+        Debug.Log("======");
+        Debug.Log(score.getTeam1());
+        Debug.Log(score.getTeam2());
+        */
+        //if captured, check if winning team won. 2 out of 3
+        if (score.getTeam1() == WINNING_SCORE)
+        {
+            Debug.Log("Team1!");
+            //Team 1 wins
+        }
+        else if (score.getTeam2() == WINNING_SCORE)
+        {
+            Debug.Log("Team2!");
+            //Team 2 wins
+        }
+
+        //Check that playersTurn or enemiesMoving or doingSetup are not currently true.
+        if (playersTurn || enemiesMoving || doingSetup)
 			
 			//If any of these are true, return and do not start MoveEnemies.
 			return;
