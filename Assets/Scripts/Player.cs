@@ -82,6 +82,7 @@ using UnityEngine.SceneManagement;
 			base.Start ();
 		}
 		
+        
 		
 		//This function is called when the behaviour becomes disabled or inactive.
 		private void OnDisable ()
@@ -147,18 +148,18 @@ using UnityEngine.SceneManagement;
             switch(playerIndex)
             {
                 case 0:
-                    isDown = Input.GetButtonDown("Fire1");
+                    isDown = Input.GetButtonDown("Fire");
                     break;
                 case 1:
-                    isDown = Input.GetButtonDown("Fire2");
+                    isDown = Input.GetButtonDown("Fire1");
                     //v = Input.GetAxisRaw("Vertical1");
                     break;
                 case 2:
-                    isDown = Input.GetButtonDown("Fire3");
+                    isDown = Input.GetButtonDown("Fire2");
                     //v = Input.GetAxisRaw("Vertical2");
                     break;
                 case 3:
-                    isDown = Input.GetButtonDown("Fire4");
+                    isDown = Input.GetButtonDown("Fire3");
                     //v = Input.GetAxisRaw("Vertical3");
                     break;
             }
@@ -348,33 +349,40 @@ using UnityEngine.SceneManagement;
 			}
 		}
         
-	private void CheckIfDead ()
+	public bool CheckIfDead ()
 	{
 		bool x = background.GetComponent<BoxCollider2D> ().bounds.Contains(this.transform.position);
-		//Debug.Log (x);
-		//Debug.Log("player position:"+ this.transform.position.x+this.transform.position.y);
-		//Debug.Log("box position:"+ this.GetComponent<BoxCollider2D>().bounds.extents.x + this.GetComponent<BoxCollider2D>().bounds.extents.y);
+        //Debug.Log (x);
+        //Debug.Log("player position:"+ this.transform.position.x+this.transform.position.y);
+        //Debug.Log("box position:"+ this.GetComponent<BoxCollider2D>().bounds.extents.x + this.GetComponent<BoxCollider2D>().bounds.extents.y);
 
-		if (x == false) {
-			
-			this.gameObject.SetActive (false);
+        if (!x)
+        {
+            this.gameObject.SetActive(false);
+            //playerShrink ();
 
-//			playerShrink ();
+            //Debug.Log ("destroied");
+            isDead = true;
+            //Debug.Log ("yo" + isDead);
+            //yield return new WaitForSeconds(1f);
 
-			//Debug.Log ("destroied");
-			isDead = true;
-			//Debug.Log ("yo" + isDead);
-			//yield return new WaitForSeconds(1f);
+            Debug.Log("wait");
 
-			Debug.Log ("wait");
-
-			this.transform.position = playerPosition;
-//			this.transform.localScale = new Vector2 (1f, 1f);
-			this.gameObject.SetActive (true);
-			//Destroy(this.gameObject);
-			isDead = false;
-		}
-	}
+            this.transform.position = playerPosition;
+            this.gameObject.SetActive(true);
+            //return false;
+            //}
+            //			this.transform.localScale = new Vector2 (1f, 1f);
+            //this.gameObject.SetActive (true);
+            //Destroy(this.gameObject);
+            //isDead = false;
+        }
+        else
+        {
+            isDead = false;
+        }
+        return isDead;
+    }
 
     public void playHoldingSound()
     {

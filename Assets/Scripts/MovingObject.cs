@@ -8,7 +8,7 @@ public abstract class MovingObject : MonoBehaviour
     public float speedDecay = 0.00001f;
 
     public Vector2 currVelocity;
-    private Vector2 _currVelocity { get { return currVelocity; } set { Debug.Log("hey: " + value); currVelocity = value; } }
+    private Vector2 _currVelocity { get { return currVelocity; } set { currVelocity = value; } }
 
 	public float moveTime = 0.1f;			//Time it will take object to move, in seconds.
 	public LayerMask blockingLayer;			//Layer on which collision will be checked.

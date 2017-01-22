@@ -35,14 +35,14 @@ public struct GameScore
 
 public class GameManager : MonoBehaviour
 {
-    public const int WINNING_SCORE = 3;
+    public const int WINNING_SCORE = 5;
     public float levelStartDelay = 2f;						//Time to wait before starting level, in seconds.
 	public float turnDelay = 0.1f;							//Delay between each Player turn.
 	public int playerFoodPoints = 100;						//Starting value for Player food points.
 	public static GameManager instance = null;				//Static instance of GameManager which allows it to be accessed by any other script.
-	[HideInInspector] public bool playersTurn = true;		//Boolean to check if it's players turn, hidden in inspector but public.
-	
-	
+	[HideInInspector] public bool playersTurn = true;       //Boolean to check if it's players turn, hidden in inspector but public.
+
+    public Text scoreText;
 	private Text levelText;									//Text to display current level number.
 	private GameObject levelImage;							//Image to block out level as levels are being set up, background for levelText.
 	private BoardManager boardScript;						//Store a reference to our BoardManager which will set up the level.
@@ -53,7 +53,6 @@ public class GameManager : MonoBehaviour
     public GameScore score;                                 //Scores of both teams
     public List<Player> leftTeam;                           //Holds players of left team
     public List<Player> rightTeam;                          //Holds players of right team
-
 
     //Awake is always called before any Start functions
     void Awake()
@@ -79,9 +78,6 @@ public class GameManager : MonoBehaviour
 		//Get a component reference to the attached BoardManager script
 		boardScript = GetComponent<BoardManager>();
 
-        //Reset GameScore
-        score.reset();
-
         //Set left team and right team
         Player[] players = FindObjectsOfType(typeof(Player)) as Player[];
 
@@ -97,7 +93,6 @@ public class GameManager : MonoBehaviour
             }
             players[i].isHoldingEgg = false;
         }
-
         //Call the InitGame function to initialize the first level 
         InitGame();
 	}
@@ -143,12 +138,13 @@ public class GameManager : MonoBehaviour
 		
 		//Get a reference to our image LevelImage by finding it by name.
 		levelImage = GameObject.Find("LevelImage");
-		
-		//Get a reference to our text LevelText's text component by finding it by name and calling GetComponent.
-		levelText = GameObject.Find("LevelText").GetComponent<Text>();
-		
-		//Set the text of levelText to the string "Day" and append the current level number.
-		levelText.text = "Round " + level;
+
+        //Get a reference to our text LevelText's text component by finding it by name and calling GetComponent.
+        levelText = GameObject.Find("LevelText").GetComponent<Text>();
+        scoreText = GameObject.Find("LevelText").GetComponent<Text>();
+
+        //Set the text of levelText to the string "Day" and append the current level number.
+        levelText.text = "Round " + level;
 		
 		//Set levelImage to active blocking player's view of the game board during setup.
 		levelImage.SetActive(true);
@@ -161,12 +157,18 @@ public class GameManager : MonoBehaviour
 		
 		//Call the SetupScene function of the BoardManager script, pass it current level number.
 		boardScript.SetupScene(level);
-		
-	}
-	
-	
-	//Hides black image used between levels
-	void HideLevelImage()
+
+        //Reset isHoldingEgg condition for both teams
+        resetEgg();
+
+        //Reset scores
+        score.reset();
+        scoreText.text = score.getTeam1() + " : " + score.getTeam2();
+    }
+
+
+    //Hides black image used between levels
+    void HideLevelImage()
 	{
 		//Disable the levelImage gameObject.
 		levelImage.SetActive(false);
@@ -202,21 +204,23 @@ public class GameManager : MonoBehaviour
                 leftTeam[i].isHoldingEgg = true;
                 //    leftTeam[i].playHoldingSound();
             }
-            /*
-             * if(dead){
-             *  isHoldingEgg = false;
-             *  egg.gameObject.setActive(true);
-             *  leftTeam[i].playDroppingSound();
-             * }
-             */
+
             if (leftTeam[i].isHoldingEgg)
             {
+                Debug.Log(leftTeam[i].isDead);
                 if (Vector2.Distance(leftTeam[i].transform.position, leftTeam[i].leftBase.transform.position) < 1)
                 {
                     //Left team scored
                     score.scoredT1();
                     resetEgg();
                 }
+                if (leftTeam[i].CheckIfDead())
+                {
+                    Debug.Log("DEAD");
+                    resetEgg();
+                    //                leftTeam[i].playDroppingSound();
+                }
+
             }
         }
 
@@ -229,24 +233,22 @@ public class GameManager : MonoBehaviour
                 rightTeam[i].isHoldingEgg = true;
                 //     rightTeam[i].playHoldingSound();
             }
-            /*
-             * if(dead){
-             *  isHoldingEgg = false;
-             *  egg.gameObject.setActive(true);
-             *  leftTeam[i].playDropSound();
-             * }
-             */
+
             if (rightTeam[i].isHoldingEgg)
             {
-                if (!rightTeam[i].isLeftTeam)
+                if (Vector2.Distance(rightTeam[i].transform.position, rightTeam[i].rightBase.transform.position) < 1)
                 {
-                    if (Vector2.Distance(rightTeam[i].transform.position, rightTeam[i].rightBase.transform.position) < 1)
-                    {
-                        //right team scored
-                        rightTeam[i].rightBase.gameObject.SetActive(false);
-                        score.scoredT1();
-                    }
+                    //right team scored
+                    rightTeam[i].rightBase.gameObject.SetActive(false);
+                    score.scoredT1();
                 }
+                if (rightTeam[i].CheckIfDead())
+                {
+                    rightTeam[i].isHoldingEgg = false;
+                    rightTeam[i].egg.gameObject.SetActive(true);
+                    //                rightTeam[i].playDroppingSound();
+                }
+
             }
         }
         /*
@@ -256,6 +258,7 @@ public class GameManager : MonoBehaviour
         Debug.Log(score.getTeam2());
         */
         //if captured, check if winning team won. 2 out of 3
+        scoreText.text = score.getTeam1() + " : " + score.getTeam2();
 
         checkWinningConditions();
 
