@@ -70,6 +70,7 @@ public abstract class MovingObject : MonoBehaviour
     public void ResetMovement()
     {
         _currVelocity = Vector2.zero;
+        EnableInputVelocityOverride(true);
     }
 	
 	//Move returns true if it is able to move and false if not. 
@@ -129,6 +130,10 @@ public abstract class MovingObject : MonoBehaviour
          //   Debug.Log("C:" + _currVelocity);
             float currMagnitude = _currVelocity.magnitude;
             currMagnitude = Mathf.Max(currMagnitude - speedDecay, 0f);
+            if(currMagnitude < 0.1f)
+            {
+                ResetMovement();
+            }
             return _currVelocity.normalized * currMagnitude;
         }
 	}

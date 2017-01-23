@@ -194,6 +194,8 @@ using UnityEngine.SceneManagement;
                     break;
             }
 
+        Debug.Log(playerIndex + " : " + isDown);
+
             return isDown;
         }
 

@@ -36,7 +36,7 @@ public struct GameScore
 public class GameManager : MonoBehaviour
 {
 	AudioSource audioSource;
-	public const int WINNING_SCORE = 3;
+	public const int WINNING_SCORE = 10;
     public float levelStartDelay = 2f;						//Time to wait before starting level, in seconds.
 	public float turnDelay = 0.1f;							//Delay between each Player turn.
 	public int playerFoodPoints = 100;						//Starting value for Player food points.
@@ -218,6 +218,8 @@ public class GameManager : MonoBehaviour
 	
     void checkWinningConditions()
     {
+        Debug.Log("1:" + score.getTeam1());
+    Debug.Log("2:" + score.getTeam2());
         if (score.getTeam1() == WINNING_SCORE)
         {
             //Set levelText to display number of levels passed and game over message
@@ -236,13 +238,16 @@ public class GameManager : MonoBehaviour
 			audioSource.Play ();
         }
     }
+
+    private float timeSinceLastScore;
+
 	//Update is called every frame.
 	void Update()
 	{
         for (int i = 0; i < leftTeam.Count; i++)
         {
             //Check collision
-            if ((Vector2.Distance(leftTeam[i].transform.position, leftTeam[i].egg.transform.position) < 1) && (leftTeam[i].egg.gameObject.activeSelf))
+            if ((Vector2.Distance(leftTeam[i].transform.position, leftTeam[i].egg.transform.position) < 2f) && (leftTeam[i].egg.gameObject.activeSelf))
             {
                 //Player gathered egg
                 leftTeam[i].egg.gameObject.SetActive(false);
@@ -252,18 +257,20 @@ public class GameManager : MonoBehaviour
 
             if (leftTeam[i].isHoldingEgg)
             {
-                if (Vector2.Distance(leftTeam[i].transform.position, leftTeam[i].leftBase.transform.position) < 1)
+                if (Vector2.Distance(leftTeam[i].transform.position, leftTeam[i].leftBase.transform.position) < 2f && (Time.time - timeSinceLastScore > 3f))
                 {
                     //Left team scored
                     score.scoredT1();
-                    resetEgg();
+                    timeSinceLastScore = Time.time;
+                    leftTeam[i].egg.Respawn();
                 }
                 if (leftTeam[i].DieIfNeeded())
                 {
                     Debug.Log("DEAD");
-                    resetEgg();
+                        leftTeam[i].egg.Respawn();
                     //                leftTeam[i].playDroppingSound();
                 }
+
 
             }
         }
@@ -271,7 +278,7 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < rightTeam.Count; i++)
         {
             //Check collision
-            if (Vector2.Distance(rightTeam[i].transform.position, rightTeam[i].egg.transform.position) < 1)
+            if (Vector2.Distance(rightTeam[i].transform.position, rightTeam[i].egg.transform.position) < 2f)
             {
                 rightTeam[i].egg.gameObject.SetActive(false);
                 rightTeam[i].isHoldingEgg = true;
@@ -280,11 +287,12 @@ public class GameManager : MonoBehaviour
 
             if (rightTeam[i].isHoldingEgg)
             {
-                if (Vector2.Distance(rightTeam[i].transform.position, rightTeam[i].rightBase.transform.position) < 1)
+                if (Vector2.Distance(rightTeam[i].transform.position, rightTeam[i].rightBase.transform.position) < 2f && (Time.time - timeSinceLastScore > 3f))
                 {
                     //right team scored
-                    rightTeam[i].rightBase.gameObject.SetActive(false);
-                    score.scoredT1();
+                    score.scoredT2();
+                    timeSinceLastScore = Time.time;
+                    rightTeam[i].egg.Respawn();
                 }
                 if (rightTeam[i].DieIfNeeded())
                 {
